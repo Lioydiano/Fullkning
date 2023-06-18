@@ -1,4 +1,6 @@
 #include "include/sista/sista.hpp"
+#include <algorithm>
+#include <conio.h>
 #include <fstream>
 #include <chrono>
 #include <thread>
@@ -129,9 +131,6 @@ void Builder::unhook() {
         }
         game::score--; // We decrement the score
         game::frame_countdown = COOLDOWN; // We reset the frame_countdown
-    } else {
-        // If the frame_countdown is not 0 or less, we just decrement it
-        game::frame_countdown--;
     }
 }
 
@@ -280,26 +279,47 @@ int main() {
     field_.print('&');
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-    while (!victory()) {
+    bool finished = false;
+    std::thread input_thread([&]() {
+        while (true) {
+            char input = getch();
+            switch (input) {
+                case 'w':
+                    changeBlockType();
+                    break;
+                case 'a':
+                    field_.movePawnBy(game::builder, 0, -1, PACMAN_EFFECT);
+                    break;
+                case 'd':
+                    field_.movePawnBy(game::builder, 0, 1, PACMAN_EFFECT);
+                    break;
+                case 's':
+                    game::builder->unhook();
+                    break;
+                case ' ':
+                    stopStoneFalling();
+                    break;
+                case 'q':
+                    finished = true;
+                    return;
+            }
+        }
+    });
+
+    while (!victory() && !finished) {
+        game::frame_countdown--;
         moveAllSandBlocks();
         moveStoneBlock(); // There's only one stone block, so we don't need to iterate through a vector
-        if (rand() % 3 == 0) {
-            changeBlockType();
-        }
-        if (rand() % 5 == 0) {
-            stopStoneFalling();
-        }
-        game::builder->unhook();
-        field_.movePawnBy(game::builder, 0, 1, PACMAN_EFFECT);
+
         description_style.apply();
         cursor.set(8, 15);
         std::cout << "Score: " << game::score << "      ";
         cursor.set(10, 15);
         std::cout << "Targets: " << game::targets.size() << "      ";
         cursor.set(12, 15);
-        std::cout << "Cooldown: " << game::frame_countdown << "      ";
+        std::cout << "Cooldown: " << std::max(game::frame_countdown, (short)0) << "      ";
         cursor.set(14, 15);
         std::cout << "Selected: " << (game::hooked_block == BlockType::Sand ? "Sand" : "Stone") << "      ";
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(300));
     }
 }
