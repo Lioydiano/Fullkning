@@ -1,4 +1,5 @@
 #include "include/sista/sista.hpp"
+#include <fstream>
 #include <chrono>
 #include <thread>
 #include <future>
@@ -67,8 +68,8 @@ public:
 // A VirtualBlock represents the place where the user will have to collocate the blocks
 class VirtualBlock : public Block {
 public:
-    VirtualBlock(sista::Coordinates coordinates_) : Block(' ', coordinates_, virtual_style, BlockType::Virtual) {}
-    VirtualBlock(sista::Coordinates& coordinates_, bool _by_reference) : Block(' ', coordinates_, virtual_style, BlockType::Virtual, true) {}
+    VirtualBlock(sista::Coordinates coordinates_) : Block('O', coordinates_, virtual_style, BlockType::Virtual) {}
+    VirtualBlock(sista::Coordinates& coordinates_, bool _by_reference) : Block('O', coordinates_, virtual_style, BlockType::Virtual, true) {}
     virtual BlockType getType() {
         return BlockType::Virtual;
     }
@@ -90,6 +91,19 @@ void Builder::unhook() {
 namespace game {
     Builder* builder; // Global variable which will be used as a pointer to the builder
     sista::Field* field; // Global variable which will be used as a pointer to the field
+    short int score = 0; // Global variable which will be used to store the score
+    short int frame_countdown = 0; // This will tell when the builder will be able to unhook another block
+    BlockType selected_block = BlockType::Sand; // This will tell which block the user has selected
+}
+
+
+void fillFromLevelFile(std::string path) {
+    std::ifstream file(path, std::ios::in);
+    unsigned int y, x;
+    while (file >> y >> x) {
+        sista::Coordinates coordinates(y, x);
+        game::field->addPawn(new VirtualBlock(coordinates));
+    }
 }
 
 
@@ -101,4 +115,14 @@ int main() {
     field.print('&');
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     sista::clearScreen();
+    fillFromLevelFile("1.level");
+    field.print('&');
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    sista::clearScreen();
+    field.removePawn(game::builder);
+    field.reset();
+    field.addPawn(game::builder);
+    fillFromLevelFile("2.level");
+    field.print('&');
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 }
