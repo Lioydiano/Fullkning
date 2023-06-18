@@ -1,4 +1,10 @@
 #include "include/sista/sista.hpp"
+#include <chrono>
+#include <thread>
+#include <future>
+
+#define WIDTH 10
+#define HEIGHT 20
 
 
 ANSI::Settings sand_style(
@@ -71,8 +77,28 @@ public:
 // This class will be used to create the builder, that one which unhooks the blocks
 class Builder : public sista::Pawn {
 public:
-    Builder(sista::Coordinates coordinates_) : Pawn('?', coordinates_, builder_style) {}
-    Builder(sista::Coordinates& coordinates_, bool _by_reference) : Pawn('?', coordinates_, builder_style) {}
+    Builder(sista::Coordinates coordinates_) : Pawn('$', coordinates_, builder_style) {}
+    Builder(sista::Coordinates& coordinates_, bool _by_reference) : Pawn('$', coordinates_, builder_style) {}
 
-    void unhook() {}
+    void unhook();
 };
+void Builder::unhook() {
+    // This function will be called when the builder will unhook a block
+}
+
+// This namespace will contain all that ugly global variables
+namespace game {
+    Builder* builder; // Global variable which will be used as a pointer to the builder
+    sista::Field* field; // Global variable which will be used as a pointer to the field
+}
+
+
+int main() {
+    sista::Field field(WIDTH, HEIGHT); // [normally the scheme is [y][x], this is an exception in Sista]
+    game::field = &field;
+    game::builder = new Builder(sista::Coordinates(1, 5));
+    field.addPawn(game::builder);
+    field.print('&');
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    sista::clearScreen();
+}
