@@ -258,7 +258,7 @@ inline void changeBlockType() {
     game::hooked_block = game::hooked_block == BlockType::Sand ? BlockType::Stone : BlockType::Sand;
 }
 
-int main() {
+int main(int argc, char* argv[]) {
     sista::Cursor cursor;
     sista::Field field_(WIDTH, HEIGHT); // [normally the scheme is [y][x], this is an exception in Sista]
     game::field = &field_;
@@ -267,15 +267,9 @@ int main() {
     field_.print('&');
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     sista::clearScreen();
-    fillFromLevelFile("1.level");
-    field_.print('&');
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    sista::clearScreen();
-    field_.removePawn(game::builder);
-    field_.reset();
-    game::targets.clear();
-    field_.addPawn(game::builder);
-    fillFromLevelFile("2.level");
+    std::string path = argc > 1 ? argv[1] : "1";
+    path += ".level";
+    fillFromLevelFile(path);
     field_.print('&');
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
