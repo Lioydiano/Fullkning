@@ -1,10 +1,26 @@
 #include "include/sista/sista.hpp"
 #include <algorithm>
-#include <conio.h>
 #include <fstream>
 #include <chrono>
 #include <thread>
 #include <future>
+#ifdef _WIN32
+    #include <conio.h>
+#elif __APPLE__
+    #include <termios.h>
+
+    void term_echooff() {
+        struct termios noecho;
+
+        tcgetattr(0, &origin);
+
+        noecho = origin;
+        noecho.c_lflag &= ~ECHO;
+
+        tcsetattr(0, TCSANOW, &noecho);
+    }
+    struct termios orig_termios;
+#endif
 
 #define WIDTH 10
 #define HEIGHT 20
@@ -259,6 +275,9 @@ inline void changeBlockType() {
 }
 
 int main(int argc, char* argv[]) {
+    #ifdef __APPLE__
+        term_echooff();
+    #endif
     sista::Cursor cursor;
     sista::Field field_(WIDTH, HEIGHT); // [normally the scheme is [y][x], this is an exception in Sista]
     game::field = &field_;
@@ -276,7 +295,11 @@ int main(int argc, char* argv[]) {
     bool finished = false;
     std::thread input_thread([&]() {
         while (true) {
-            char input = getch();
+            #ifdef _WIN32
+                char input = getch();
+            #elif __APPLE__
+                char input = getchar();
+            #endif
             switch (input) {
                 case 'w':
                     changeBlockType();
@@ -316,4 +339,8 @@ int main(int argc, char* argv[]) {
         std::cout << "Selected: " << (game::hooked_block == BlockType::Sand ? "Sand" : "Stone") << "      ";
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
     }
+    #ifdef __APPLE__
+        // noecho.c_lflag &= ~ECHO;, noecho.c_lflag |= ECHO;
+        tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios);
+    #endif
 }
