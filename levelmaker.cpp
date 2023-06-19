@@ -34,10 +34,7 @@ int main(int argc, char* argv[]) {
 
     sista::Cursor cursor_handler;
     sista::Field field(WIDTH, HEIGHT);
-    sista::Pawn* builder = new sista::Pawn(
-        sista::Coordinates(0, 0),
-        builder_style, '$'
-    );
+    sista::Pawn* builder = new sista::Pawn('$', sista::Coordinates(0, 0), builder_style);
     field.addPawn(builder);
     field.print('&');
 
@@ -46,46 +43,78 @@ int main(int argc, char* argv[]) {
     std::cout << "Use {Q}+ENTER to quit" << std::endl;
 
     while (true) {
-        char input = getchar();
+        cursor_handler.set({30, 30});
+        char input = std::cin.get();
         switch (input) {
             case 'w': case 'W':
-                if (cursor->get_coordinates().y > 0) {
-                    field.movePawnBy(cursor, up);
+                if (builder->getCoordinates().y > 0) {
+                    try {
+                        field.movePawnBy(builder, up);
+                    } catch (std::invalid_argument& e) {}
                 }
                 break;
             case 'a': case 'A':
-                if (cursor->get_coordinates().x > 0) {
-                    field.movePawnBy(cursor, left);
+                if (builder->getCoordinates().x > 0) {
+                    try {
+                        field.movePawnBy(builder, left);
+                    } catch (std::invalid_argument& e) {}
                 }
                 break;
             case 's': case 'S':
-                if (cursor->get_coordinates().y < HEIGHT - 1) {
-                    field.movePawnBy(cursor, down);
+                if (builder->getCoordinates().y < HEIGHT - 1) {
+                    try {
+                        field.movePawnBy(builder, down);
+                    } catch (std::invalid_argument& e) {}
                 }
                 break;
             case 'd': case 'D':
-                if (cursor->get_coordinates().x < WIDTH - 1) {
-                    field.movePawnBy(cursor, right);
+                if (builder->getCoordinates().x < WIDTH - 1) {
+                    try {
+                        field.movePawnBy(builder, right);
+                    } catch (std::invalid_argument& e) {}
                 }
                 break;
-            case 'p': case 'P':
-                sista::Coordinates coordinates = cursor->get_coordinates();
+            case 'p': case 'P': {
+                sista::Coordinates coordinates = builder->getCoordinates();
                 coordinates.y++;
                 if (coordinates.y < HEIGHT) {
                     level_file << coordinates.y << " " << coordinates.x << std::endl;
-                    field.addPawn(new sista::Pawn(coordinates, builder_style, '#'));
+                    field.addPrintPawn(new sista::Pawn('#', coordinates, builder_style));
                 }
                 break;
-            case 'r': case 'R':
-                sista::Coordinates coordinates = cursor->get_coordinates();
+            }
+            case 'r': case 'R': {
+                sista::Coordinates coordinates = builder->getCoordinates();
                 coordinates.y++;
                 if (coordinates.y < HEIGHT) {
                     level_file << coordinates.y << " " << coordinates.x << std::endl;
-                    field.removePawnAt(coordinates);
+                    sista::Pawn* deleted = field.getPawn(coordinates);
+                    if (deleted != nullptr) {
+                        if (deleted->getSymbol() == '#') {
+                            field.removePawn(deleted);
+                            delete deleted;
+                            // Graphically remove the pawn
+                            cursor_handler.set(coordinates);
+                            ANSI::reset();
+                            std::cout << ' ';
+                        }
+                    }
                 }
                 break;
+            }
             case 'q': case 'Q':
+                for (int row = 0; row < HEIGHT; row++) {
+                    for (int col = 0; col < WIDTH; col++) {
+                        sista::Coordinates coordinates(row, col);
+                        if (field.getPawn(coordinates) != nullptr) {
+                            if (field.getPawn(coordinates)->getSymbol() == '#')
+                                level_file << coordinates.y << " " << coordinates.x << '\n';
+                        }
+                    }
+                }
                 level_file.close();
+                std::cout << "Level saved" << std::endl;
+                field.reset();
                 return 0;
         }
     }
