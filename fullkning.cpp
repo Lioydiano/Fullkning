@@ -286,7 +286,8 @@ int main(int argc, char* argv[]) {
     field_.print('&');
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
     sista::clearScreen();
-    std::string path = argc > 1 ? argv[1] : "1";
+    std::string path = "levels/";
+    path += argc > 1 ? argv[1] : "1";
     path += ".level";
     fillFromLevelFile(path);
     field_.print('&');
