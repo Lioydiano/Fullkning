@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
     field.addPawn(builder);
     field.print('&');
 
-    std::cout << "Use {W, A, S, D}+ENTER to move the cursor" << std::endl;
+    std::cout << "\nUse {W, A, S, D}+ENTER to move the cursor" << std::endl;
     std::cout << "Use {P, R}+ENTER to place and remove a block" << std::endl;
     std::cout << "Use {Q}+ENTER to quit" << std::endl;
 
@@ -78,7 +78,6 @@ int main(int argc, char* argv[]) {
                 sista::Coordinates coordinates = builder->getCoordinates();
                 coordinates.y++;
                 if (coordinates.y < HEIGHT) {
-                    level_file << coordinates.y << " " << coordinates.x << std::endl;
                     field.addPrintPawn(new sista::Pawn('#', coordinates, builder_style));
                 }
                 break;
@@ -87,7 +86,6 @@ int main(int argc, char* argv[]) {
                 sista::Coordinates coordinates = builder->getCoordinates();
                 coordinates.y++;
                 if (coordinates.y < HEIGHT) {
-                    level_file << coordinates.y << " " << coordinates.x << std::endl;
                     sista::Pawn* deleted = field.getPawn(coordinates);
                     if (deleted != nullptr) {
                         if (deleted->getSymbol() == '#') {
