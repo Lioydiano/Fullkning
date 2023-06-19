@@ -5,6 +5,9 @@
 #include <thread>
 #include <future>
 #ifdef _WIN32
+    #include <windows.h>
+#endif
+#ifdef _WIN32
     #include <conio.h>
 #elif __APPLE__
     #include <termios.h>
@@ -275,6 +278,18 @@ inline void changeBlockType() {
 }
 
 int main(int argc, char* argv[]) {
+    #ifdef _WIN32
+        CONSOLE_FONT_INFOEX font_info;
+        font_info.cbSize = sizeof(font_info);
+        font_info.dwFontSize.X = 31;
+        font_info.dwFontSize.Y = 11;
+        font_info.FontFamily = FF_DONTCARE;
+        font_info.FontWeight = FW_NORMAL;
+        SetCurrentConsoleFontEx(
+            GetStdHandle(STD_OUTPUT_HANDLE),
+            false, &font_info
+        );
+    #endif
     #ifdef __APPLE__
         term_echooff();
     #endif
