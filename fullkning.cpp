@@ -319,6 +319,9 @@ int main(int argc, char* argv[]) {
             cursor.set(14, 15);
             std::cout << "Selected: " << (game::hooked_block == BlockType::Sand ? "Sand" : "Stone") << "      ";
         }
+        if (victory())
+            break;
+
         char input = future.get();
         switch (input) {
             case 'w':
