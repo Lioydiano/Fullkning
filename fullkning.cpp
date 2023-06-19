@@ -299,6 +299,8 @@ int main(int argc, char* argv[]) {
                 char input = getch();
             #elif __APPLE__
                 char input = getchar();
+            #else
+                char input = getchar();
             #endif
             switch (input) {
                 case 'w':
