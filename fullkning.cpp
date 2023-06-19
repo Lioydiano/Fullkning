@@ -9,17 +9,17 @@
 #elif __APPLE__
     #include <termios.h>
 
+    struct termios orig_termios;
     void term_echooff() {
         struct termios noecho;
 
-        tcgetattr(0, &origin);
+        tcgetattr(0, &orig_termios);
 
-        noecho = origin;
+        noecho = orig_termios;
         noecho.c_lflag &= ~ECHO;
 
         tcsetattr(0, TCSANOW, &noecho);
     }
-    struct termios orig_termios;
 #endif
 
 #define WIDTH 10
@@ -341,6 +341,6 @@ int main(int argc, char* argv[]) {
     }
     #ifdef __APPLE__
         // noecho.c_lflag &= ~ECHO;, noecho.c_lflag |= ECHO;
-        tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios);
+        tcsetattr(0, TCSAFLUSH, &orig_termios);
     #endif
 }
