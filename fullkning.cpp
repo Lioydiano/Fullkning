@@ -294,7 +294,7 @@ int main(int argc, char* argv[]) {
 
     bool finished = false;
     std::thread input_thread([&]() {
-        while (true) {
+        while (!finished) {
             #ifdef _WIN32
                 char input = getch();
             #elif __APPLE__
@@ -320,7 +320,6 @@ int main(int argc, char* argv[]) {
                     break;
                 case 'q':
                     finished = true;
-                    return;
             }
         }
     });
@@ -345,4 +344,12 @@ int main(int argc, char* argv[]) {
         // noecho.c_lflag &= ~ECHO;, noecho.c_lflag |= ECHO;
         tcsetattr(0, TCSAFLUSH, &orig_termios);
     #endif
+    stone_style.apply();
+    cursor.set(HEIGHT + 4, 0);
+    if (finished) {
+        std::cout << "Game terminated by the user." << std::endl;
+    } else {
+        std::cout << "You won with " << game::score << " points!" << std::endl;
+    }
+    return 0;
 }
