@@ -354,5 +354,10 @@ int main(int argc, char* argv[]) {
     } else {
         std::cout << "You won with " << game::score << " points!" << std::endl;
     }
+    #ifdef _WIN32
+        getch();
+    #else
+        getchar();
+    #endif
     return 0;
 }
