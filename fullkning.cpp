@@ -294,52 +294,51 @@ int main(int argc, char* argv[]) {
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     bool finished = false;
-    std::thread input_thread([&]() {
-        while (!finished) {
-            #ifdef _WIN32
-                char input = getch();
-            #elif __APPLE__
-                char input = getchar();
-            #else
-                char input = getchar();
-            #endif
-            switch (input) {
-                case 'w':
-                    changeBlockType();
-                    break;
-                case 'a':
-                    field_.movePawnBy(game::builder, 0, -1, PACMAN_EFFECT);
-                    break;
-                case 'd':
-                    field_.movePawnBy(game::builder, 0, 1, PACMAN_EFFECT);
-                    break;
-                case 's':
-                    game::builder->unhook();
-                    break;
-                case ' ':
-                    stopStoneFalling();
-                    break;
-                case 'q':
-                    finished = true;
-            }
-        }
-    });
-
     while (!victory() && !finished) {
-        game::frame_countdown--;
-        moveAllSandBlocks();
-        moveStoneBlock(); // There's only one stone block, so we don't need to iterate through a vector
+        std::future<int> future = std::async(std::launch::async, []() {
+            #ifdef _WIN32
+                return getch();
+            #elif __APPLE__
+                return getchar();
+            #else
+                return getchar();
+            #endif
+        });
+        while (future.wait_for(std::chrono::milliseconds(300)) != std::future_status::ready) {
+            game::frame_countdown--;
+            moveAllSandBlocks();
+            moveStoneBlock(); // There's only one stone block, so we don't need to iterate through a vector
 
-        description_style.apply();
-        cursor.set(8, 15);
-        std::cout << "Score: " << game::score << "      ";
-        cursor.set(10, 15);
-        std::cout << "Targets: " << game::targets.size() << "      ";
-        cursor.set(12, 15);
-        std::cout << "Cooldown: " << std::max(game::frame_countdown, (short)0) << "      ";
-        cursor.set(14, 15);
-        std::cout << "Selected: " << (game::hooked_block == BlockType::Sand ? "Sand" : "Stone") << "      ";
-        std::this_thread::sleep_for(std::chrono::milliseconds(300));
+            description_style.apply();
+            cursor.set(8, 15);
+            std::cout << "Score: " << game::score << "      ";
+            cursor.set(10, 15);
+            std::cout << "Targets: " << game::targets.size() << "      ";
+            cursor.set(12, 15);
+            std::cout << "Cooldown: " << std::max(game::frame_countdown, (short)0) << "      ";
+            cursor.set(14, 15);
+            std::cout << "Selected: " << (game::hooked_block == BlockType::Sand ? "Sand" : "Stone") << "      ";
+        }
+        char input = future.get();
+        switch (input) {
+            case 'w':
+                changeBlockType();
+                break;
+            case 'a':
+                field_.movePawnBy(game::builder, 0, -1, PACMAN_EFFECT);
+                break;
+            case 'd':
+                field_.movePawnBy(game::builder, 0, 1, PACMAN_EFFECT);
+                break;
+            case 's':
+                game::builder->unhook();
+                break;
+            case ' ':
+                stopStoneFalling();
+                break;
+            case 'q':
+                finished = true;
+        }
     }
     #ifdef __APPLE__
         // noecho.c_lflag &= ~ECHO;, noecho.c_lflag |= ECHO;
