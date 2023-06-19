@@ -265,7 +265,7 @@ int main(int argc, char* argv[]) {
     game::builder = new Builder(sista::Coordinates(1, 5));
     field_.addPawn(game::builder);
     field_.print('&');
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
     sista::clearScreen();
     std::string path = argc > 1 ? argv[1] : "1";
     path += ".level";
