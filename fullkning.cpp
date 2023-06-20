@@ -306,12 +306,14 @@ int main(int argc, char* argv[]) {
     path += ".level";
     fillFromLevelFile(path);
     field_.print('&');
-    cursor.set(2, 2);
     ANSI::Settings(
         ANSI::ForegroundColor::F_WHITE,
         ANSI::BackgroundColor::B_BLACK,
         ANSI::Attribute::REVERSE
     ).apply();
+    cursor.set(2, 2);
+    std::cout << "0123456789" << std::flush;
+    cursor.set(2 + HEIGHT + 1, 2);
     std::cout << "0123456789" << std::flush;
     ANSI::reset();
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
