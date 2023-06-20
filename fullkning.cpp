@@ -100,8 +100,8 @@ public:
 // A VirtualBlock represents the place where the user will have to collocate the blocks
 class VirtualBlock : public Block {
 public:
-    VirtualBlock(sista::Coordinates coordinates_) : Block('O', coordinates_, virtual_style, BlockType::Virtual) {}
-    VirtualBlock(sista::Coordinates& coordinates_, bool _by_reference) : Block('O', coordinates_, virtual_style, BlockType::Virtual, true) {}
+    VirtualBlock(sista::Coordinates coordinates_) : Block((char)('0'+coordinates_.x), coordinates_, virtual_style, BlockType::Virtual) {}
+    VirtualBlock(sista::Coordinates& coordinates_, bool _by_reference) : Block((char)('0'+coordinates_.x), coordinates_, virtual_style, BlockType::Virtual, true) {}
     virtual BlockType getType() {
         return BlockType::Virtual;
     }
@@ -306,6 +306,14 @@ int main(int argc, char* argv[]) {
     path += ".level";
     fillFromLevelFile(path);
     field_.print('&');
+    cursor.set(2, 2);
+    ANSI::Settings(
+        ANSI::ForegroundColor::F_WHITE,
+        ANSI::BackgroundColor::B_BLACK,
+        ANSI::Attribute::REVERSE
+    ).apply();
+    std::cout << "0123456789" << std::flush;
+    ANSI::reset();
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     bool finished = false;
