@@ -34,7 +34,7 @@ int main(int argc, char* argv[]) {
 
     sista::Cursor cursor_handler;
     sista::Field field(WIDTH, HEIGHT);
-    sista::Pawn* builder = new sista::Pawn('$', sista::Coordinates(0, 0), builder_style);
+    sista::Pawn* builder = new sista::Pawn('$', sista::Coordinates(1, 5), builder_style);
     field.addPawn(builder);
     field.print('&');
 
@@ -76,6 +76,8 @@ int main(int argc, char* argv[]) {
                 break;
             case 'p': case 'P': {
                 sista::Coordinates coordinates = builder->getCoordinates();
+                if (coordinates.y < 1)
+                    continue; // Do not place blocks on the first/second row
                 coordinates.y++;
                 if (coordinates.y < HEIGHT) {
                     field.addPrintPawn(new sista::Pawn('#', coordinates, builder_style));
