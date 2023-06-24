@@ -27,7 +27,7 @@
 
 #define WIDTH 10
 #define HEIGHT 20
-#define COOLDOWN 7
+#define COOLDOWN 3
 
 sista::Coordinates one_down(1, 0);
 
@@ -319,6 +319,7 @@ int main(int argc, char* argv[]) {
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     bool finished = false;
+    std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
     while (!victory() && !finished) {
         std::future<int> future = std::async(std::launch::async, []() {
             #ifdef _WIN32
@@ -335,6 +336,8 @@ int main(int argc, char* argv[]) {
             moveStoneBlock(); // There's only one stone block, so we don't need to iterate through a vector
 
             description_style.apply();
+            cursor.set(6, 15);
+            std::cout << "Time: " << std::chrono::duration_cast<std::chrono::duration<int, std::milli>>(std::chrono::steady_clock::now() - start).count() << "ms      ";
             cursor.set(8, 15);
             std::cout << "Score: " << game::score << "      ";
             cursor.set(10, 15);
