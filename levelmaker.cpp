@@ -1,6 +1,9 @@
 #include "include/sista/sista.hpp"
 #include <iostream>
 #include <fstream>
+#ifdef _WIN32
+    #include <conio.h>
+#endif
 
 #define WIDTH 10
 #define HEIGHT 20
@@ -43,8 +46,15 @@ int main(int argc, char* argv[]) {
     std::cout << "Use {Q}+ENTER to quit" << std::endl;
 
     while (true) {
-        cursor_handler.set({30, 30});
-        char input = std::cin.get();
+        #ifdef _WIN32
+            char input = getch();
+        #elif __APPLE__
+            cursor_handler.set({20, 30});
+            char input = std::cin.get();
+        #else
+            cursor_handler.set({20, 30});
+            char input = std::cin.get();
+        #endif
         switch (input) {
             case 'w': case 'W':
                 if (builder->getCoordinates().y > 0) {
