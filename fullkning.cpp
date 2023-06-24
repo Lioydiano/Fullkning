@@ -352,22 +352,22 @@ int main(int argc, char* argv[]) {
 
         char input = future.get();
         switch (input) {
-            case 'w':
+            case 'w': case 'W':
                 changeBlockType();
                 break;
-            case 'a':
+            case 'a': case 'A':
                 field_.movePawnBy(game::builder, 0, -1, PACMAN_EFFECT);
                 break;
-            case 'd':
+            case 'd': case 'D':
                 field_.movePawnBy(game::builder, 0, 1, PACMAN_EFFECT);
                 break;
-            case 's':
+            case 's': case 'S':
                 game::builder->unhook();
                 break;
             case ' ':
                 stopStoneFalling();
                 break;
-            case 'q':
+            case 'q': case 'Q':
                 finished = true;
         }
     }
