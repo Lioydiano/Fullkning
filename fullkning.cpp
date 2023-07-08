@@ -23,6 +23,31 @@
 
         tcsetattr(0, TCSANOW, &noecho);
     }
+#elif __linux__    
+    #include <unistd.h>
+    #include <termios.h>
+
+    char getch(void) {
+        char buf = 0;
+        struct termios old = {0};
+        fflush(stdout);
+        if(tcgetattr(0, &old) < 0)
+            perror("tcsetattr()");
+        old.c_lflag &= ~ICANON;
+        old.c_lflag &= ~ECHO;
+        old.c_cc[VMIN] = 1;
+        old.c_cc[VTIME] = 0;
+        if(tcsetattr(0, TCSANOW, &old) < 0)
+            perror("tcsetattr ICANON");
+        if(read(0, &buf, 1) < 0)
+            perror("read()");
+        old.c_lflag |= ICANON;
+        old.c_lflag |= ECHO;
+        if(tcsetattr(0, TCSADRAIN, &old) < 0)
+            perror("tcsetattr ~ICANON");
+        // printf("%c\n", buf);
+        return buf;
+    }
 #endif
 
 #define WIDTH 10
@@ -326,8 +351,8 @@ int main(int argc, char* argv[]) {
                 return getch();
             #elif __APPLE__
                 return getchar();
-            #else
-                return getchar();
+            #elif __linux__
+                return (int)getch();
             #endif
         });
         while (future.wait_for(std::chrono::milliseconds(300)) != std::future_status::ready) {
@@ -346,6 +371,9 @@ int main(int argc, char* argv[]) {
             std::cout << "Cooldown: " << std::max(game::frame_countdown, (short)0) << "      ";
             cursor.set(14, 15);
             std::cout << "Selected: " << (game::hooked_block == BlockType::Sand ? "Sand" : "Stone") << "      ";
+            #if __linux__ // Ubuntu 22.04 has a low refresh rate...
+                std::cout << std::flush;
+            #endif
         }
         if (victory())
             break;
@@ -382,9 +410,9 @@ int main(int argc, char* argv[]) {
     } else {
         std::cout << "You won with " << game::score << " points!" << std::endl;
     }
-    #ifdef _WIN32
+    #if defined(_WIN32) or defined(__linux__)
         getch();
-    #else
+    #elif __APPLE__
         getchar();
     #endif
     return 0;

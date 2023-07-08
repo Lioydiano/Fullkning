@@ -124,6 +124,6 @@ g++ levelmaker.cpp -o levelmaker -std=c++17
 ...you will see a window like the one above, now you can create your own level by moving the cursor with `W`, `A`, `S`, `D` and placing or removing a block with `P` and `R`.
 
 ℹ️ - The blocks are placed under the `$` character if possible
-⚠️ - Due to problems with raw input, you will have to press `ENTER` after each key press
+⚠️ - Due to problems with raw input, you will have to press `ENTER` after each key press, since `v0.5` this is no longer the case for Linux users.
 
 Then you can save your level by pressing `Q` and the level will be saved in the `levels` folder.
