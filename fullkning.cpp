@@ -279,6 +279,15 @@ void stopStoneFalling() {
 
 void fillFromLevelFile(std::string path) {
     std::ifstream file(path, std::ios::in);
+    if (!file.is_open()) {
+        std::cerr << "Error while opening the file " << path << std::endl;
+        #if defined(_WIN32) or defined(__linux__)
+            getch();
+        #elif __APPLE__
+            getchar();
+        #endif
+        exit(1);
+    }
     unsigned int y, x;
     while (file >> y >> x) {
         game::targets.push_back(new sista::Coordinates(y, x));
